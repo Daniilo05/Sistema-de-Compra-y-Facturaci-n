@@ -11,6 +11,10 @@ class Categoria(ClaseModelo):
     
     def __str__(self):
         return '{}'.format(self.descripcion)
+    
+    def save(self):
+        self.descripcion = self.descripcion.upper()
+        super(Categoria, self).save()
 
     class Meta:
         verbose_name_plural = 'Categorias'

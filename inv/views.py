@@ -21,6 +21,11 @@ class CategoriaNew(LoginRequiredMixin, generic.CreateView):
     def form_valid(self, form):
         form.instance.uc = self.request.user
         return super().form_valid(form)
+    
+
+
+
+
 
     
     
