@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CategoriaView, CategoriaNew, CategoriaEdit,CategoriaDelete,SubCategoriaView, SubCategoriaNew,SubCategoriaEdit,SubCategoriaDelete, MarcaView, MarcaNew, MarcaEdit, marca_inactivar
+from .views import CategoriaView, CategoriaNew, CategoriaEdit,CategoriaDelete,SubCategoriaView, SubCategoriaNew,SubCategoriaEdit,SubCategoriaDelete, MarcaView, MarcaNew, MarcaEdit, marca_inactivar, UmView, UmNew, UmEdit, um_inactivar
 
 urlpatterns = [
     path('categorias/',CategoriaView.as_view(), name='categoria_list'),
@@ -16,5 +16,12 @@ urlpatterns = [
     path('marcas/',MarcaView.as_view(), name='marca_list'),
     path('marcas/new',MarcaNew.as_view(), name='marca_new'),
     path('marcas/edit/<int:pk>',MarcaEdit.as_view(), name='marca_edit'),
-    path('marcas/inactivar/<int:id>',marca_inactivar, name = 'marca_inactivar')
+    path('marcas/inactivar/<int:id>',marca_inactivar, name = 'marca_inactivar'),
+    
+    
+    path('um/', UmView.as_view(), name='um_list'),
+    path('um/new', UmNew.as_view(), name="um_new"),
+    path('um/edit/<int:pk>',UmEdit.as_view(), name='um_edit'),
+    path('um/inactivar/<int:id>',um_inactivar, name='um_inactivar')
+ 
 ]
