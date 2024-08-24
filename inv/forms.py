@@ -1,5 +1,5 @@
 from django import forms
-from .models import Categoria, SubCategoria, Marca, Um
+from .models import Categoria, SubCategoria, Marca, Um, Producto
 
 class CategoriaForm(forms.ModelForm):
     class Meta:
@@ -65,4 +65,20 @@ class UmForm(forms.ModelForm):
                 })
 
             
+class ProductoForm(forms.ModelForm):
+    class Meta:
+        model = Producto
+        fields =['codigo','codigo_barra','descripcion','estado',
+                 'precio','existencias','ultima_compra',
+                 'marca','subcategoria','unidad_medida']
+        exclude = ['um','fm','uc','fc']
+        widgets= {'descripcion': forms.TextInput()}
         
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in iter(self.fields):
+            self.fields[field].widget.attrs.update({
+                'class': 'form-control'
+            })
+        self.fields['ultima_compra'].widget.attrs['readonly'] = True
+        self.fields['existencias'].widget.attrs['readonly'] = True
