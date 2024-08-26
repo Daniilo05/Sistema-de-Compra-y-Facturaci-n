@@ -1,12 +1,12 @@
 <div class="modal-dialog modal-lg">
     <div class="modal-content">
         {% if obj %}
-        <form method="POST" role="form" class="form-inline" action="{% url 'inv:producto_edit' objt.pk %}">
+        <form method="POST" role="form" class="form-horizontal" action="{% url 'inv:producto_edit' obj.pk %}">
         {% else %}
-        <form method="POST" role="form" class="form-inline" action="{% url 'inv:producto_new' %}">
+        <form method="POST" role="form" class="form-horizontal" action="{% url 'inv:producto_new' %}">
         {% endif %}
-            <div class="col-xl-6 col-md-6 mb-6">
-                {% if obj  %}
+            <div class="col-xl-12 col-md-12 mb-6">
+                {% if obj %}
                 <div class="card border-left-warning shadow h-100 py-2">
                 {% else %}
                 <div class="card border-left-success shadow h-100 py-2">
@@ -15,19 +15,57 @@
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    {%if obj %} Editar {% else %} Nueva {% endif %}  Productos
+                                    {% if obj %} Editar {% else %} Nueva {% endif %} Productos
                                 </div>
                                 <div class="dropdown-divider"></div>
                                 {% csrf_token %}
-                                <div class="row">
-                                    {{ form.as_p }}
+                                <div class="form-group row">
+                                    <div class="col-md-6 mb-3">
+                                        {{ form.codigo.label_tag }}
+                                        {{ form.codigo }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        {{ form.codigo_barra.label_tag }}
+                                        {{ form.codigo_barra }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        {{ form.descripcion.label_tag }}
+                                        {{ form.descripcion }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        {{ form.estado.label_tag }}
+                                        {{ form.estado }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        {{ form.precio.label_tag }}
+                                        {{ form.precio }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        {{ form.existencias.label_tag }}
+                                        {{ form.existencias }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        {{ form.ultima_compra.label_tag }}
+                                        {{ form.ultima_compra }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        {{ form.marca.label_tag }}
+                                        {{ form.marca }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        {{ form.subcategoria.label_tag }}
+                                        {{ form.subcategoria }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        {{ form.unidad_medida.label_tag }}
+                                        {{ form.unidad_medida }}
+                                    </div>
                                 </div>
                                 <div class="dropdown-divider"></div>
                                 <div class="row">
                                     <div class="col">
                                         <button type="submit" class="btn btn-danger"><span class="fa fa-save"></span> Guardar</button>
-                                        <!--<a href="{% url 'inv:producto_list' %}" class="btn btn-success"><span class="fa fa-undo"></span> Cancelar</a> -->
-                                        <button tepy="button" class="btn btn-success" onclick="return cerrar_modal()">Cancelar</button>
+                                        <button type="button" class="btn btn-success" onclick="return cerrar_modal()">Cancelar</button>
                                     </div>   
                                 </div>
                             </div>
@@ -38,5 +76,3 @@
         </form>
     </div>
 </div>
-
-
