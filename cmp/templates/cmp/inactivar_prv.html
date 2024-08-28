@@ -1,22 +1,23 @@
 <div class="modal-dialog modal-lg">
     <div class="modal-content">
-        <form method="POST" class="form-inline">
+        <form method="POST" class="form-inline" action="{% url 'cmp:proveedor_inactivar' obj.pk %}">
             {% csrf_token %}
-            <div class="col-xl-3 col-md-6 mb-4">
+            <div class="modal-body">
                 <div class="card border-left-danger shadow h-100 py-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase">
-                                    <div class="alert">
-                                        ¿ Inactivar {{ obj.descripcion}}?</div>
-                                    </div>
-                                <button type="button" class="btn btn-danger"><i class="far fa-question-circle"></i>Si, Eliminar</button>
-                                <!--<a href="{% url 'inv:categoria_list' %}" class="btn btn-success"><span class="fa fa-undo"></span> Cancelar</a>-->
-                                <button type="button" class="btn btn-success" onclick="return cerrar_modal()">No,Cancelar</button>
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-3">
+                            ¿ Inactivar {{ obj.descripcion }}?
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <button type="submit" class="btn btn-danger btn-block">
+                                    <i class="far fa-question-circle"></i> Sí, Inactivar
+                                </button>
                             </div>
-                            <div class="col-auto">
-                                <i class="far fa-question-circle fa-2x text-gray-300"></i>
+                            <div class="col-md-6 mb-3">
+                                <button type="button" class="btn btn-success btn-block" onclick="return cerrar_modal()">
+                                    Cancelar
+                                </button>
                             </div>
                         </div>
                     </div>

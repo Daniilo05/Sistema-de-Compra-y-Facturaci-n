@@ -10,6 +10,9 @@ class Proveedor(ClaseModelo):
         max_length=250,
         null=True, blank=True,
     )
+    contacto = models.CharField(
+        max_length= 100,
+    )
     telefono = models.CharField(
         max_length=10,
         null=True, blank=True,
