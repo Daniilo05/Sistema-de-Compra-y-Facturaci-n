@@ -5,13 +5,44 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Categoria,SubCategoria, Marca, Um, Producto
 from .forms import CategoriaForm, SubCategoriaForm, MarcaForm, UmForm, ProductoForm
 
+class BasesCreateNew(LoginRequiredMixin, generic.CreateView):
+    login_url = "bases:login"
+    
+    def form_valid(self, form):
+        form.instance.uc = self.request.user
+        return super().form_valid(form)
+    
+class BasesUpdateView(LoginRequiredMixin, generic.UpdateView):
+    login_url = "bases:login"
+    
+    def form_valid(self, form):
+        form.instance.um = self.request.user.id
+        return super().form_valid(form)
+
+class BasesDeleteView(LoginRequiredMixin, generic.DeleteView):
+    login_url = "bases:login"
+    
+    def form_valid(self, form):
+       return reverse_lazy(self.success_url_name)
+   
+
+def inactivar_modelo(request,modelo, id, template_name, redirect_url):
+    obj = modelo.objects.filter(pk=id).first()
+    if not obj:
+        return redirect(redirect_url)
+    if request.method=="POST":
+        obj.estado = False
+        obj.save()
+        return redirect(redirect_url)
+    return render(request, template_name, {"obj":obj})
+   
 class CategoriaView(LoginRequiredMixin, generic.ListView):
     model = Categoria
     template_name = "inv/categoria_list.html"
     context_object_name = "obj"
     login_url = "bases:login"
 
-class CategoriaNew(LoginRequiredMixin, generic.CreateView):
+class CategoriaNew(BasesCreateNew):
     model = Categoria
     template_name = "inv/categoria_form.html"
     context_object_name = "obj"
@@ -19,28 +50,18 @@ class CategoriaNew(LoginRequiredMixin, generic.CreateView):
     success_url = reverse_lazy("inv:categoria_list")
     login_url = "bases:login"
 
-    def form_valid(self, form):
-        form.instance.uc = self.request.user
-        return super().form_valid(form)
-    
-class CategoriaEdit(LoginRequiredMixin, generic.UpdateView):
+class CategoriaEdit(BasesUpdateView):
     model = Categoria
     template_name = "inv/categoria_form.html"
     context_object_name = "obj"
     form_class = CategoriaForm
     success_url = reverse_lazy("inv:categoria_list")
     login_url = "bases:login"
-
-    def form_valid(self, form):
-        form.instance.um = self.request.user.id
-        return super().form_valid(form)
-
-class CategoriaDelete(LoginRequiredMixin, generic.DeleteView):
+class CategoriaDelete(BasesDeleteView):
     model = Categoria
     template_name = "inv/categoria_delete.html"
     context_object_name = "obj"
     success_url = reverse_lazy("inv:categoria_list")
-    
     
     
 class SubCategoriaView(LoginRequiredMixin, generic.ListView):
@@ -50,34 +71,21 @@ class SubCategoriaView(LoginRequiredMixin, generic.ListView):
     login_url = "bases:login"
     
     
-class SubCategoriaNew(LoginRequiredMixin, generic.CreateView):
+class SubCategoriaNew(BasesCreateNew):
     model = SubCategoria
     template_name = "inv/subcategoria_form.html"
     context_object_name = "obj"
     form_class = SubCategoriaForm
     success_url = reverse_lazy("inv:subcategoria_list")
     login_url = "bases:login"
-
-    def form_valid(self, form):
-        form.instance.uc = self.request.user
-        return super().form_valid(form)
-    
-    
-    
-class SubCategoriaEdit(LoginRequiredMixin, generic.UpdateView):
+class SubCategoriaEdit(BasesUpdateView):
     model = SubCategoria
     template_name = "inv/subcategoria_form.html"
     context_object_name = "obj"
     form_class = SubCategoriaForm
     success_url = reverse_lazy("inv:subcategoria_list")
     login_url = "bases:login"
-
-    def form_valid(self, form):
-        form.instance.um = self.request.user.id
-        return super().form_valid(form)
-    
-
-class SubCategoriaDelete(LoginRequiredMixin, generic.DeleteView):
+class SubCategoriaDelete(BasesDeleteView): 
     model = SubCategoria
     template_name = "inv/categoria_delete.html"
     context_object_name = "obj"
@@ -89,7 +97,7 @@ class MarcaView(LoginRequiredMixin, generic.ListView):
     context_object_name = "obj"
     login_url = "bases:login"
     
-class MarcaNew(LoginRequiredMixin, generic.CreateView):
+class MarcaNew(BasesCreateNew):
     model = Marca
     template_name = "inv/marca_form.html"
     context_object_name = "obj"
@@ -101,7 +109,7 @@ class MarcaNew(LoginRequiredMixin, generic.CreateView):
         form.instance.uc = self.request.user
         return super().form_valid(form)
     
-class MarcaEdit(LoginRequiredMixin, generic.UpdateView):
+class MarcaEdit(BasesUpdateView):
     model = Marca
     template_name = "inv/marca_form.html"
     context_object_name = "obj"
@@ -114,23 +122,7 @@ class MarcaEdit(LoginRequiredMixin, generic.UpdateView):
         return super().form_valid(form)
     
 def marca_inactivar(request, id):
-    marca = Marca.objects.filter(pk=id).first()
-    contexto = {}
-    template_name ="inv/categoria_delete.html"
-    
-    if not marca:
-        return redirect("inv:marca_list")
-         
-    if request.method =='GET':
-        contexto={'obj':marca}
-        
-    if request.method =='POST':
-        marca.estado = False
-        marca.save()
-        return redirect("inv:marca_list")
-        
-    
-    return render(request,template_name,contexto)
+    return inactivar_modelo(request, Marca, id, "inv/categoria_delete.html", "inv:marca_list")
 
 
 class UmView(LoginRequiredMixin, generic.ListView):
@@ -140,47 +132,24 @@ class UmView(LoginRequiredMixin, generic.ListView):
     login_url = "bases:login"
     
     
-class UmNew(LoginRequiredMixin, generic.CreateView):
+class UmNew(BasesCreateNew):
     model = Um
     template_name = "inv/um_form.html"
     context_object_name = "obj"
     form_class = UmForm
     success_url = reverse_lazy("inv:um_list")
     login_url = "bases:login"
-    
-    def form_valid(self, form):
-        form.instance.uc = self.request.user
-        return super().form_valid(form)
 
-    
-class UmEdit(LoginRequiredMixin, generic.UpdateView):
+class UmEdit(BasesUpdateView):
     model = Um
     template_name = "inv/um_form.html"
     context_object_name = "obj"
     form_class = UmForm
     success_url = reverse_lazy("inv:um_list")
     login_url = "bases:login"
-    
 
-    def form_valid(self, form):
-        form.instance.um = self.request.user.id
-        return super().form_valid(form)
-    
 def um_inactivar(request, id):
-    um = Um.objects.filter(pk=id).first()
-    contexto = {}
-    template_name ="inv/categoria_delete.html"
-    
-    if not um:
-        return redirect("inv:um_list")
-         
-    if request.method =='GET':
-        contexto={'obj':um}
-        
-    if request.method =='POST':
-        um.estado = False
-        um.save()
-        return redirect("inv:um_list")
+    return inactivar_modelo(request, Um, id, "inv/um_delete.html", "inv:um_list")
         
     
     return render(request,template_name,contexto)
@@ -191,7 +160,7 @@ class ProductoView(LoginRequiredMixin, generic.ListView):
     context_object_name = "obj"
     login_url = "bases:login"    
     
-class ProductoNew(LoginRequiredMixin, generic.CreateView):
+class ProductoNew(BasesCreateNew):
     model = Producto
     template_name = "inv/producto_form.html"
     context_object_name = "obj"
@@ -199,39 +168,14 @@ class ProductoNew(LoginRequiredMixin, generic.CreateView):
     success_url = reverse_lazy("inv:producto_list")
     login_url = "bases:login"
     
-    def form_valid(self, form):
-        form.instance.uc = self.request.user
-        return super().form_valid(form)
-
-    
-class ProductoEdit(LoginRequiredMixin, generic.UpdateView):
+class ProductoEdit(BasesUpdateView):
     model = Producto
     template_name = "inv/producto_form.html"
     context_object_name = "obj"
     form_class = ProductoForm
     success_url = reverse_lazy("inv:producto_list")
     login_url = "bases:login"
-    
-
-    def form_valid(self, form):
-        form.instance.um = self.request.user.id
-        return super().form_valid(form)
     
 def producto_inactivar(request, id):
-    producto = Producto.objects.filter(pk=id).first()
-    contexto = {}
-    template_name ="inv/categoria_delete.html"
-    
-    if not producto:
-        return redirect("inv:procducto_list")
-         
-    if request.method =='GET':
-        contexto={'obj':producto}
+    return inactivar_modelo(request, Producto, id, "inv/categoria_delete.html", "inv:producto_list")
         
-    if request.method =='POST':
-        producto.estado = False
-        producto.save()
-        return redirect("inv:producto_list")
-        
-    
-    return render(request,template_name,contexto)
