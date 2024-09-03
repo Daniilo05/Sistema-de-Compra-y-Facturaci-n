@@ -20,6 +20,13 @@
     </div>
     <!-- Card Body -->
     <div class="card-body">
+        {% if messages %}
+            <div class="alert alert-info">
+                {% for message in messages %}
+                    <p class="mb-o">{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
         {% if not obj %}
         <div class="alert alert-info">No hay Marcas</div>
         {% else %}

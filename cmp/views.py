@@ -3,17 +3,18 @@ from django.views import generic
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from .models import Proveedor
 from .forms import ProveedorForm
 
-class BasesCreateView(LoginRequiredMixin, generic.CreateView):
+class BasesCreateView(SuccessMessageMixin,LoginRequiredMixin, generic.CreateView):
     login_url = 'base:login'
 
     def form_valid(self, form):
         form.instance.uc = self.request.user
         return super().form_valid(form)
     
-class BasesEditView(LoginRequiredMixin, generic.UpdateView):
+class BasesEditView(SuccessMessageMixin,LoginRequiredMixin, generic.UpdateView):
     login_url = 'base:login'
     
     def form_valid(self, form):
@@ -33,7 +34,7 @@ class ProveedorNew(BasesCreateView):
     context_object_name = 'obj'
     form_class = ProveedorForm
     success_url = reverse_lazy('cmp:proveedor_list')
-    login_url = ('bases:login')
+    success_message ="Proveedor Creado Correctamente"
         
 class ProveedorEdit(BasesEditView):
     model =  Proveedor
@@ -41,7 +42,7 @@ class ProveedorEdit(BasesEditView):
     context_object_name = 'obj'
     form_class = ProveedorForm
     success_url = reverse_lazy('cmp:proveedor_list')
-    login_url = ('bases:login')
+    success_message ="Proveedor Actualizado Correctamente"
       
       
 def proveedor_inactivar(request,id):

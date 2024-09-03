@@ -1,18 +1,20 @@
 from django.shortcuts import render, redirect
 from django.views import generic
 from django.urls import reverse_lazy
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from .models import Categoria,SubCategoria, Marca, Um, Producto
 from .forms import CategoriaForm, SubCategoriaForm, MarcaForm, UmForm, ProductoForm
 
-class BasesCreateNew(LoginRequiredMixin, generic.CreateView):
+class BasesCreateNew(SuccessMessageMixin, LoginRequiredMixin, generic.CreateView):
     login_url = "bases:login"
     
     def form_valid(self, form):
         form.instance.uc = self.request.user
         return super().form_valid(form)
-    
-class BasesUpdateView(LoginRequiredMixin, generic.UpdateView):
+
+class BasesUpdateView(SuccessMessageMixin, LoginRequiredMixin, generic.UpdateView):
     login_url = "bases:login"
     
     def form_valid(self, form):
@@ -21,10 +23,12 @@ class BasesUpdateView(LoginRequiredMixin, generic.UpdateView):
 
 class BasesDeleteView(LoginRequiredMixin, generic.DeleteView):
     login_url = "bases:login"
+    success_url = None
     
-    def form_valid(self, form):
-       return reverse_lazy(self.success_url_name)
-   
+    def delete(self, request, *args, **kwargs):
+        response = super().delete(request, *args, **kwargs)
+        messages.success(self.request, self.success_message)
+        return response
 
 def inactivar_modelo(request,modelo, id, template_name, redirect_url):
     obj = modelo.objects.filter(pk=id).first()
@@ -33,6 +37,7 @@ def inactivar_modelo(request,modelo, id, template_name, redirect_url):
     if request.method=="POST":
         obj.estado = False
         obj.save()
+        messages.success(request, f'{modelo.__name__} inactivado Correctamente')
         return redirect(redirect_url)
     return render(request, template_name, {"obj":obj})
    
@@ -40,7 +45,8 @@ class CategoriaView(LoginRequiredMixin, generic.ListView):
     model = Categoria
     template_name = "inv/categoria_list.html"
     context_object_name = "obj"
-    login_url = "bases:login"
+    login_url = "base:login"
+    
 
 class CategoriaNew(BasesCreateNew):
     model = Categoria
@@ -48,7 +54,7 @@ class CategoriaNew(BasesCreateNew):
     context_object_name = "obj"
     form_class = CategoriaForm
     success_url = reverse_lazy("inv:categoria_list")
-    login_url = "bases:login"
+    success_message = "Categoria Creada Correctamente"
 
 class CategoriaEdit(BasesUpdateView):
     model = Categoria
@@ -56,12 +62,13 @@ class CategoriaEdit(BasesUpdateView):
     context_object_name = "obj"
     form_class = CategoriaForm
     success_url = reverse_lazy("inv:categoria_list")
-    login_url = "bases:login"
+    success_message = "Categoria Actualizada Correctamente"
 class CategoriaDelete(BasesDeleteView):
     model = Categoria
     template_name = "inv/categoria_delete.html"
     context_object_name = "obj"
     success_url = reverse_lazy("inv:categoria_list")
+    success_message = "Categoria Eliminada Correctamente"
     
     
 class SubCategoriaView(LoginRequiredMixin, generic.ListView):
@@ -77,19 +84,21 @@ class SubCategoriaNew(BasesCreateNew):
     context_object_name = "obj"
     form_class = SubCategoriaForm
     success_url = reverse_lazy("inv:subcategoria_list")
-    login_url = "bases:login"
+    success_message = "SubCategoria Creada Correctamente"
 class SubCategoriaEdit(BasesUpdateView):
     model = SubCategoria
     template_name = "inv/subcategoria_form.html"
     context_object_name = "obj"
     form_class = SubCategoriaForm
     success_url = reverse_lazy("inv:subcategoria_list")
-    login_url = "bases:login"
+    success_message = "SubCategoria Actualizada  Correctamente"
+
 class SubCategoriaDelete(BasesDeleteView): 
     model = SubCategoria
     template_name = "inv/categoria_delete.html"
     context_object_name = "obj"
     success_url = reverse_lazy("inv:subcategoria_list")
+    success_message = "SubCategoria Eliminada Correctamente"
     
 class MarcaView(LoginRequiredMixin, generic.ListView):
     model = Marca
@@ -103,23 +112,14 @@ class MarcaNew(BasesCreateNew):
     context_object_name = "obj"
     form_class = MarcaForm
     success_url = reverse_lazy("inv:marca_list")
-    login_url = "bases:login"
-
-    def form_valid(self, form):
-        form.instance.uc = self.request.user
-        return super().form_valid(form)
-    
+    success_message = "Marca Creada Correctamente"
 class MarcaEdit(BasesUpdateView):
     model = Marca
     template_name = "inv/marca_form.html"
     context_object_name = "obj"
     form_class = MarcaForm
     success_url = reverse_lazy("inv:marca_list")
-    login_url = "bases:login"
-
-    def form_valid(self, form):
-        form.instance.um = self.request.user.id
-        return super().form_valid(form)
+    success_message = "Marca Actualizada Correctamente"
     
 def marca_inactivar(request, id):
     return inactivar_modelo(request, Marca, id, "inv/categoria_delete.html", "inv:marca_list")
@@ -138,7 +138,7 @@ class UmNew(BasesCreateNew):
     context_object_name = "obj"
     form_class = UmForm
     success_url = reverse_lazy("inv:um_list")
-    login_url = "bases:login"
+    success_message = "Unidad de Medida Creada Correctamente"
 
 class UmEdit(BasesUpdateView):
     model = Um
@@ -146,14 +146,11 @@ class UmEdit(BasesUpdateView):
     context_object_name = "obj"
     form_class = UmForm
     success_url = reverse_lazy("inv:um_list")
-    login_url = "bases:login"
+    success_message = "Unidad de Medida Actualizada Correctamente"
 
 def um_inactivar(request, id):
-    return inactivar_modelo(request, Um, id, "inv/um_delete.html", "inv:um_list")
+    return inactivar_modelo(request, Um, id, "inv/categoria_delete.html", "inv:um_list")
         
-    
-    return render(request,template_name,contexto)
-
 class ProductoView(LoginRequiredMixin, generic.ListView):
     model = Producto
     template_name = "inv/producto_list.html"
@@ -166,7 +163,8 @@ class ProductoNew(BasesCreateNew):
     context_object_name = "obj"
     form_class = ProductoForm
     success_url = reverse_lazy("inv:producto_list")
-    login_url = "bases:login"
+    success_message = "Producto Creada Correctamente"
+
     
 class ProductoEdit(BasesUpdateView):
     model = Producto
@@ -174,7 +172,7 @@ class ProductoEdit(BasesUpdateView):
     context_object_name = "obj"
     form_class = ProductoForm
     success_url = reverse_lazy("inv:producto_list")
-    login_url = "bases:login"
+    success_message = "Producto Actualizada Correctamente"
     
 def producto_inactivar(request, id):
     return inactivar_modelo(request, Producto, id, "inv/categoria_delete.html", "inv:producto_list")
