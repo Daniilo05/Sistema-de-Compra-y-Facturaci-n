@@ -7,6 +7,8 @@ from django.contrib.messages.views import SuccessMessageMixin
 from .models import Categoria,SubCategoria, Marca, Um, Producto
 from .forms import CategoriaForm, SubCategoriaForm, MarcaForm, UmForm, ProductoForm
 
+from bases.views import SinPermisos
+
 class BasesCreateNew(SuccessMessageMixin, LoginRequiredMixin, generic.CreateView):
     login_url = "bases:login"
     
@@ -72,7 +74,7 @@ class CategoriaDelete(BasesDeleteView):
     success_message = "Categoria Eliminada Correctamente"
     
     
-class SubCategoriaView(LoginRequiredMixin, PermissionRequiredMixin, generic.ListView):
+class SubCategoriaView(LoginRequiredMixin, SinPermisos, generic.ListView):
     permission_required = "inv.view_subcategoria"
     model = SubCategoria
     template_name = "inv/subcategoria_list.html"
@@ -102,7 +104,8 @@ class SubCategoriaDelete(BasesDeleteView):
     success_url = reverse_lazy("inv:subcategoria_list")
     success_message = "SubCategoria Eliminada Correctamente"
     
-class MarcaView(LoginRequiredMixin, generic.ListView):
+class MarcaView(LoginRequiredMixin,SinPermisos, generic.ListView):
+    permission_required ="inv.view_marca"
     model = Marca
     template_name = "inv/marca_list.html"
     context_object_name = "obj"
