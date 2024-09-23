@@ -2,10 +2,15 @@ from django.shortcuts import render, redirect
 from django.views import generic
 from django.urls import reverse_lazy
 from django.contrib import messages
+
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth.decorators import login_required, permission_required
+
+
 from .models import Categoria,SubCategoria, Marca, Um, Producto
 from .forms import CategoriaForm, SubCategoriaForm, MarcaForm, UmForm, ProductoForm
+
 
 from bases.views import SinPermisos
 
@@ -32,6 +37,8 @@ class BasesDeleteView(LoginRequiredMixin, generic.DeleteView):
         messages.success(self.request, self.success_message)
         return response
 
+@login_required(login_url='/login/')
+@permission_required('inv.change_marca', login_url='bases:sin_permisos')
 def inactivar_modelo(request,modelo, id, template_name, redirect_url):
     obj = modelo.objects.filter(pk=id).first()
     if not obj:
